@@ -58,7 +58,9 @@ int main(int argc, char *argv[]) {
     // do until error is minimal or until max steps
     while ( dt > MAX_TEMP_ERROR && iteration <= max_iterations ) {
 
-#pragma omp parallel for private(j)
+#pragma omp parallel
+      {
+#pragma omp for private(j)
         // main calculation: average my four neighbors
         for(i = 1; i <= ROWS; i++) {
             for(j = 1; j <= COLUMNS; j++) {
@@ -69,7 +71,7 @@ int main(int argc, char *argv[]) {
 
         dt = 0.0; // reset largest temperature change
 
-#pragma omp parallel for private(j) reduction(max: dt)
+#pragma omp for private(j) reduction(max: dt)
         // copy grid to old grid for next iteration and find latest dt
         for(i = 1; i <= ROWS; i++){
             for(j = 1; j <= COLUMNS; j++){
@@ -77,6 +79,7 @@ int main(int argc, char *argv[]) {
 	      Temperature_last[i][j] = Temperature[i][j];
             }
         }
+      }
 
         // periodically print test values
         if((iteration % 100) == 0) {
